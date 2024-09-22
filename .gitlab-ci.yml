@@ -40,14 +40,17 @@ build_gateway:
 
 run_gateway:
   stage: run
+  image: docker:latest
+  services:
+    - docker:dind
   script:
     # Exécute le conteneur FastAPI en arrière-plan
     - docker run -d --name containergateway -p 8001:8000 assma123/k-api-gateway:latest
     # Attend que le conteneur soit prêt
     - sleep 10
     # Vérifie que l'application FastAPI fonctionne en testant l'accès local
-    - curl http://localhost:8001
+    - curl -f http://localhost:8001 || (echo "Failed to connect to FastAPI" && exit 1)
     # Arrête le conteneur
     - docker stop containergateway
     # Supprime le conteneur
-    - docker rm containergatway
+    - docker rm containergateway

@@ -42,5 +42,7 @@ push:
   script:
     # Se connecte à DockerHub avec les identifiants (username et token) configurés dans les variables CI/CD
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+   # Vérifie que l'image existe localement avant de la pousser
+    - docker images  # Vérification que l'image est bien présente
     # Pousse l'image sur DockerHub
     - docker push assma123/k-api-gateway:latest

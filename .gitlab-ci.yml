@@ -5,7 +5,7 @@ image:
 stages:
   - test
   - build
-  - push
+  - run
 
 test:
   stage: test
@@ -37,3 +37,17 @@ build_gateway:
     # Pousse l'image sur DockerHub
     - docker push assma123/k-api-gateway:latest
     - docker images  # Vérification que l'image est bien présente
+
+run_gateway:
+  stage: run
+  script:
+    # Exécute le conteneur FastAPI en arrière-plan
+    - docker run -d --name containergateway -p 8001:8000 assma123/k-api-gateway:latest
+    # Attend que le conteneur soit prêt
+    - sleep 10
+    # Vérifie que l'application FastAPI fonctionne en testant l'accès local
+    - curl http://localhost:8001
+    # Arrête le conteneur
+    - docker stop containergateway
+    # Supprime le conteneur
+    - docker rm containergatway

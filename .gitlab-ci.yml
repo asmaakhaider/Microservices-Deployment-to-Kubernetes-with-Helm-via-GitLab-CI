@@ -41,6 +41,6 @@ push:
     - docker:dind
   script:
     # Push the container image to DockerHub
-    - docker push assma123/k-api-gateway:latest
+    - docker push assma123/k-api-gateway:latest -f gateway/Dockerfile gateway
     # List the container images
     - docker image ls

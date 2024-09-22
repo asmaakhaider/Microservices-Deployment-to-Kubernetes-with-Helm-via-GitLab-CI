@@ -26,6 +26,8 @@ test:
 build:
   stage: build
   image: docker:latest
+  services:
+    - docker:dind
   script:
     # Build the container image
     - docker build -t assma123/k-api-gateway:latest -f gateway/Dockerfile gateway
@@ -35,6 +37,8 @@ build:
 push:
   stage: push
   image: docker:latest
+  services:
+    - docker:dind
   script:
     # Push the container image to DockerHub
     - docker push assma123/k-api-gateway:latest

@@ -44,15 +44,20 @@ run_gateway:
   services:
     - docker:dind
   script:
-    # Installer curl
+   # Arrêter et supprimer le conteneur s'il existe déjà
+    - docker stop containergateway || true
+    - docker rm containergateway || true
+    # Installer curl si nécessaire
     - apk add --no-cache curl
-    # Exécute le conteneur FastAPI en arrière-plan
+    # Exécuter le conteneur FastAPI en arrière-plan et le nommer 'containergateway'
     - docker run -d --name containergateway -p 8001:8000 assma123/k-api-gateway:latest
-    # Attend que le conteneur soit prêt
-    - sleep 10
-    # Vérifie que l'application FastAPI fonctionne en testant l'accès local
+    # Augmenter le temps d'attente pour s'assurer que l'application démarre complètement
+    - sleep 20
+    # Vérifier les logs du conteneur pour diagnostiquer les problèmes
+    - docker logs containergateway
+    # Tester la connexion à l'application FastAPI
     - curl -f http://localhost:8001 || (echo "Failed to connect to FastAPI" && exit 1)
-    # Arrête le conteneur
+    # Arrêter le conteneur
     - docker stop containergateway
-    # Supprime le conteneur
+    # Supprimer le conteneur
     - docker rm containergateway

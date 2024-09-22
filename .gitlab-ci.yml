@@ -1,7 +1,42 @@
+image:
+  name: "python:3.11-alpine"
+  entrypoint: ["/bin/sh", "-c"]
+
 stages:
   - test
+  - build
+  - push
 
-show_linux_version:
+test:
   stage: test
+  image: python:latest
+  before_script:
+    # Show docker daemon info (optional, good for debugging)
+    # - sudo apt install python3-pip -y
   script:
-    - uname -a
+    #- pip install -r requirements.txt
+- pip install -r requirements.txt
+- sudo apt-get install -y python3-pip
+- pip install fastapi
+- pip install pytest
+- pip install httpx
+- cd app/
+#- cd gateway/
+- python3 -m pytest
+
+build:
+  stage: build
+  script:
+    # Build the container image
+    - docker build -t assma123/k-api-gateway:latest -f gateway/Dockerfile gateway
+    # Tag the container image from latest to the commit ref
+    - docker image ls
+    
+
+push:
+  stage: push
+  script:
+    # Push the container image
+    - docker push assma123/k-api-gateway:latest -f gateway/Dockerfile gateway
+    # If we are building a tag, push the `latest` container image tag too
+    - docker image ls

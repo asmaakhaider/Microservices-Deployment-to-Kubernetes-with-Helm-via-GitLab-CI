@@ -1,7 +1,53 @@
+image:
+  name: "python:3.11-alpine"
+  entrypoint: ["/bin/sh", "-c"]
+
 stages:
   - test
+  - build
+  - run
 
-show_linux_version:
+test:
   stage: test
+  image: python:latest
+  before_script:
+    # Afficher les informations du démon Docker (optionnel, utile pour le débogage)
+    # - docker login registry.gitlab.com
+    - apt-get update && apt-get install -y python3-pip
   script:
-    - uname -a
+    - pip install fastapi
+    - pip install pytest
+    - pip install httpx
+    - pip install jinja2
+    # - cd gateway/ # Décommentez cette ligne si nécessaire pour naviguer dans le bon dossier
+    #- python3 -m pytest
+
+
+build_gateway:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    # Build the container image
+    - docker build -t assma123/k-api-gateway:latest -f gateway/Dockerfile gateway
+    # List the container images
+    - docker image ls
+    # Pousse l'image sur DockerHub
+    - docker push assma123/k-api-gateway:latest
+    - docker images  # Vérification que l'image est bien présente
+
+run_gateway:
+  stage: run
+  script:
+    # Exécute le conteneur FastAPI en arrière-plan
+    - docker run -d --name containergateway -p 8001:8000 assma123/k-api-gateway:latest
+    # Attend que le conteneur soit prêt
+    - sleep 10
+    # Vérifie que l'application FastAPI fonctionne en testant l'accès local
+    - curl http://localhost:8001
+    # Arrête le conteneur
+    - docker stop containergateway
+    # Supprime le conteneur
+    - docker rm containergatway

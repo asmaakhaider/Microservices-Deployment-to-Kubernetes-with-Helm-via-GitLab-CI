@@ -23,26 +23,17 @@ test:
     #- python3 -m pytest
 
 
-build:
+build_gateway:
   stage: build
   image: docker:latest
   services:
     - docker:dind
   script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     # Build the container image
     - docker build -t assma123/k-api-gateway:latest -f gateway/Dockerfile gateway
     # List the container images
     - docker image ls
-
-push:
-  stage: push
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    # Se connecte à DockerHub avec les identifiants (username et token) configurés dans les variables CI/CD
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-   # Vérifie que l'image existe localement avant de la pousser
-    - docker images  # Vérification que l'image est bien présente
     # Pousse l'image sur DockerHub
     - docker push assma123/k-api-gateway:latest
+    - docker images  # Vérification que l'image est bien présente

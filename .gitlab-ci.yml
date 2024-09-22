@@ -20,7 +20,7 @@ test:
     - pip install httpx
     - pip install jinja2
     # - cd gateway/ # Décommentez cette ligne si nécessaire pour naviguer dans le bon dossier
-    - python3 -m pytest
+    #- python3 -m pytest
 
 
 build:

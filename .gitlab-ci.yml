@@ -11,16 +11,15 @@ test:
   stage: test
   image: python:latest
   before_script:
-# Show docker daemon info (optional, good for debugging)
-# - docker login registry.gitlab.com
-- sudo apt install python3-pip -y
-  script:
+    # Afficher les informations du démon Docker (optionnel, utile pour le débogage)
+    # - docker login registry.gitlab.com
     - apt-get update && apt-get install -y python3-pip
+  script:
     - pip install fastapi
     - pip install pytest
     - pip install httpx
     - pip install jinja2
-    #- cd gateway/
+    # - cd gateway/ # Décommentez cette ligne si nécessaire pour naviguer dans le bon dossier
     - python3 -m pytest
 
 

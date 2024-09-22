@@ -44,6 +44,8 @@ run_gateway:
   services:
     - docker:dind
   script:
+    # Installer curl
+    - apk add --no-cache curl
     # Exécute le conteneur FastAPI en arrière-plan
     - docker run -d --name containergateway -p 8001:8000 assma123/k-api-gateway:latest
     # Attend que le conteneur soit prêt

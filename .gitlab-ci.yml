@@ -10,6 +10,10 @@ stages:
 test:
   stage: test
   image: python:latest
+  before_script:
+# Show docker daemon info (optional, good for debugging)
+# - docker login registry.gitlab.com
+- sudo apt install python3-pip -y
   script:
     - apt-get update && apt-get install -y python3-pip
     - pip install fastapi

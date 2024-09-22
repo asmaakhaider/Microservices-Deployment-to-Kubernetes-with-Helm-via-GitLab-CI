@@ -10,14 +10,15 @@ stages:
 test:
   stage: test
   image: python:latest
-  before_script:
-    # Optional: Install any dependencies before running the script
-    - apt-get update && apt-get install -y python3-pip
   script:
-    - pip install -r gateway/requirements.txt
-    - pip install fastapi pytest httpx
-    - cd gatway/ # Change this to the correct path if needed
+    - apt-get update && apt-get install -y python3-pip
+    - pip install fastapi
+    - pip install pytest
+    - pip install httpx
+    - pip install jinja2
+    - cd gateway/
     - python3 -m pytest
+
 
 build:
   stage: build

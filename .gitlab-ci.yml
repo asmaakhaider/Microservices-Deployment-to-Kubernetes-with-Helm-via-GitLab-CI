@@ -16,7 +16,7 @@ test:
     - pip install pytest
     - pip install httpx
     - pip install jinja2
-    - cd gateway/
+    #- cd gateway/
     - python3 -m pytest
 
 

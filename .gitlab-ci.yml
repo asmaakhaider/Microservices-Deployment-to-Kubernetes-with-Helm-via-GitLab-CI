@@ -40,5 +40,7 @@ push:
   services:
     - docker:dind
   script:
-    # Push the container image to DockerHub
+    # Se connecte à DockerHub avec les identifiants (username et token) configurés dans les variables CI/CD
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    # Pousse l'image sur DockerHub
     - docker push assma123/k-api-gateway:latest

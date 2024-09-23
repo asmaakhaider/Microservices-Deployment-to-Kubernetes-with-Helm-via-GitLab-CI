@@ -67,6 +67,8 @@ run_gateway:
 deploy_gateway:
   stage: deploy
   image: docker:latest # Image contenant Helm
+  services:
+    - docker:dind
   script:
     # Charger le fichier de configuration Kubernetes si nécessaire
     - echo "$KUBE_CONFIG" | base64 -d > /root/.kube/config

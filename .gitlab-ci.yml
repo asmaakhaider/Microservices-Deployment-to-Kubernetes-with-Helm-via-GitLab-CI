@@ -70,6 +70,9 @@ deploy_gateway:
   services:
     - docker:dind
   script:
+     # Installer Helm manuellement
+    - apk add --no-cache curl
+    - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
     # Créer le répertoire .kube si nécessaire
     - mkdir -p /root/.kube
     # Charger le fichier de configuration Kubernetes si nécessaire

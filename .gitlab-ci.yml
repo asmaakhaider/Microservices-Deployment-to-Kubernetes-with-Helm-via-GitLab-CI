@@ -67,13 +67,9 @@ run_gateway:
 deploy_gateway:
   stage: deploy
   image: devth/helm:latest # Image contenant Helm
-  services:
-    - docker:dind
   script:
-    - rm -Rf .kube
-    - mkdir .kube
-    - ls
-    - echo "$KUBE_CONFIG" > .kube/config
+    - kubectl config get-contexts
+    - kubectl config use-context gitlab-group7610338/gitlab_exam:k3s-cluster
     # Installer ou mettre à jour l'application avec Helm
     - helm upgrade --install gateway ./test-gateway/ -n prod --create-namespace
     # Vérifier le statut du déploiement Helm

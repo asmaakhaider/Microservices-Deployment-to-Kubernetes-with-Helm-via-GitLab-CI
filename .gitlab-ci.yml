@@ -12,14 +12,12 @@ stages:
   - test
   - build
   - deploy
-  - 
 
 test:
   stage: test
   image: python:latest
   before_script:
-    # Afficher les informations du démon Docker (optionnel, utile pour le débogage)
-    # - docker login registry.gitlab.com
+    # Update and install required dependencies
     - apt-get update && apt-get install -y python3-pip
   script:
     - pip install fastapi
@@ -28,8 +26,6 @@ test:
     - pip install jinja2
     # - cd gateway/ # Décommentez cette ligne si nécessaire pour naviguer dans le bon dossier
     #- python3 -m pytest
-
-
 build_gateway:
   stage: build
   image: docker:latest
@@ -41,7 +37,7 @@ build_gateway:
     - docker build -t assma123/k-api-gateway:latest -f gateway/Dockerfile gateway
     # List the container images
     - docker image ls
-    # Pousse l'image sur DockerHub
+    # Push the image to DockerHub
     - docker push assma123/k-api-gateway:latest
     - docker images  # Vérification que l'image est bien présente
 
@@ -61,3 +57,4 @@ deploy_prod:
     # Check the status of the Helm deployment
     - helm list -n $NAMESPACE
     - kubectl get all -n $NAMESPACE
+

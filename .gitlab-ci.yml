@@ -70,6 +70,8 @@ deploy_gateway:
   services:
     - docker:dind
   script:
+    # Créer le répertoire .kube si nécessaire
+    - mkdir -p /root/.kube
     # Charger le fichier de configuration Kubernetes si nécessaire
     - echo "$KUBE_CONFIG" | base64 -d > /root/.kube/config
     # Changer de contexte si plusieurs sont définis

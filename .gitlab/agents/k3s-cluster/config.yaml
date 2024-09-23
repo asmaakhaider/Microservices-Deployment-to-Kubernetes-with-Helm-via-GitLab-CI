@@ -1,3 +1,3 @@
 ci_access:
   projects:
-    - id: path/to/project
+    - id: gitlab-group7610338/gitlab_exam

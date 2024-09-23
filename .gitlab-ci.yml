@@ -72,7 +72,7 @@ deploy_gateway:
   script:
      # Installer Helm manuellement
     - apk add --no-cache curl
-    - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    - curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh
     # Créer le répertoire .kube si nécessaire
     - mkdir -p /root/.kube
     # Charger le fichier de configuration Kubernetes si nécessaire

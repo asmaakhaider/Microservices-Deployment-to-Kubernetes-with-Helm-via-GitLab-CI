@@ -11,6 +11,7 @@ image:
 stages:
   - test
   - build
+  - run
   - deploy_prod
 
 test:

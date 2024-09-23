@@ -39,6 +39,39 @@ build_gateway:
     - docker push assma123/k-api-gateway:latest
     - docker images  # Vérification que l'image est bien présente
 
+
+build_orders:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    # Build the container image for orders
+    - docker build -t assma123/k-orders:latest -f orders/Dockerfile orders
+    # List the container images
+    - docker image ls
+    # Push the image to DockerHub
+    - docker push assma123/k-orders:latest
+    # Verification
+    - docker images
+
+build_users:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    # Build the container image for users
+    - docker build -t assma123/k-users:latest -f users/Dockerfile users
+    # List the container images
+    - docker image ls
+    # Push the image to DockerHub
+    - docker push assma123/k-users:latest
+    # Verification
+    - docker images
+
 run_gateway:
   stage: run
   image: docker:latest

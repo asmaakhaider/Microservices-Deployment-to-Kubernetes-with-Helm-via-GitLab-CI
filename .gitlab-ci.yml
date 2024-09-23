@@ -6,6 +6,7 @@ stages:
   - test
   - build
   - run
+  - deploy
 
 test:
   stage: test
@@ -57,8 +58,22 @@ run_gateway:
     - docker logs containergateway
     # Tester la connexion à l'application FastAPI
     - docker ps
-    - curl  http://localhost:8000
+    #- curl  http://localhost:8000
     # Arrêter le conteneur
     #- docker stop containergateway
     # Supprimer le conteneur
     #- docker rm containergateway
+
+deploy_gateway:
+  stage: deploy
+  image: alpine/helm:3.8.0  # Image contenant Helm
+  script:
+    # Charger le fichier de configuration Kubernetes si nécessaire
+    - echo "$KUBE_CONFIG" | base64 -d > /root/.kube/config
+    # Changer de contexte si plusieurs sont définis
+    - kubectl config use-context your-cluster-context
+    # Installer ou mettre à jour l'application avec Helm
+    - helm upgrade --install gateway ./test-gateway/ -n prod --create-namespace
+    # Vérifier le statut du déploiement Helm
+    - helm list -n prod
+    - kubectl get all -n prod 

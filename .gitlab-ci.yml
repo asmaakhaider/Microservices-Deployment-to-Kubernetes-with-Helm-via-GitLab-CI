@@ -78,7 +78,9 @@ deploy_gateway:
     # Charger le fichier de configuration Kubernetes si nécessaire
     - echo "$KUBE_CONFIG" | base64 -d > /root/.kube/config
     # Changer de contexte si plusieurs sont définis
-    #- kubectl config use-context your-cluster-context
+     # Vérifie que kubectl peut accéder au cluster
+    - kubectl config current-context
+    - kubectl cluster-info
     # Installer ou mettre à jour l'application avec Helm
     - helm upgrade --install gateway ./test-gateway/ -n prod --create-namespace
     # Vérifier le statut du déploiement Helm

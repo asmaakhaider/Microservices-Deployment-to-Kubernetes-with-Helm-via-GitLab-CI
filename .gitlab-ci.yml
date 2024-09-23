@@ -11,7 +11,7 @@ image:
 stages:
   - test
   - build
-  - deploy
+  - deploy_prod
 
 test:
   stage: test
@@ -42,7 +42,7 @@ build_gateway:
     - docker images  # Vérification que l'image est bien présente
 
 deploy_prod:
-  stage: deploy
+  stage: deploy_prod
   image: devth/helm:latest  # Image contenant Helm
   environment:
     name: prod
@@ -57,4 +57,9 @@ deploy_prod:
     # Check the status of the Helm deployment
     - helm list -n $NAMESPACE
     - kubectl get all -n $NAMESPACE
+    - kubectl get pods -n $NAMESPACE
+  only:
+    - main  # Le déploiement ne s'exécute que sur la branche 'main'
+  when: manual  # Nécessite une action manuelle pour déclencher le déploiement
+  allow_failure: false  # Assure que le job ne soit pas ignoré en cas d'échec
 

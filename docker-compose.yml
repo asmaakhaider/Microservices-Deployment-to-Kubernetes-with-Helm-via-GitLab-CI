@@ -18,7 +18,7 @@ services:
           - ./gateway:/app
 
     users:
-        image: baranbartu/k-users:latest
+        image: assma123/k-users:latest
         command: sh -c "uvicorn main:app --reload --host 0.0.0.0"
         build:
             context: ./users
@@ -29,7 +29,7 @@ services:
           - ./users:/app
 
     orders:
-        image: baranbartu/k-orders:latest
+        image: assma123/k-orders:latest
         command: sh -c "uvicorn main:app --reload --host 0.0.0.0"
         build:
             context: ./orders

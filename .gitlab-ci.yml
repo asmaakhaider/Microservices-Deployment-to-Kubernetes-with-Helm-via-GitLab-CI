@@ -114,7 +114,7 @@ deploy_prod:
     - kubectl config use-context gitlab-group7610338/gitlab_exam:k3s-cluster
     # Deploy or update the application with Helm
     - helm upgrade --install gateway ./test-gateway/ --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
-    - - helm upgrade --install users ./test-users --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
+    - helm upgrade --install users ./test-users --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
     # Check the status of the Helm deployment
     - helm list -n $NAMESPACE
     - kubectl get all -n $NAMESPACE

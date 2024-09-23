@@ -66,7 +66,7 @@ run_gateway:
 
 deploy_gateway:
   stage: deploy
-  image: alpine/helm:3.8.0  # Image contenant Helm
+  image: docker:latest # Image contenant Helm
   script:
     # Charger le fichier de configuration Kubernetes si nécessaire
     - echo "$KUBE_CONFIG" | base64 -d > /root/.kube/config

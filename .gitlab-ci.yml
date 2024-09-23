@@ -57,7 +57,7 @@ run_gateway:
     - docker logs containergateway
     # Tester la connexion à l'application FastAPI
     - docker ps
-   # - curl -f http://localhost:8001 || (echo "Failed to connect to FastAPI" && exit 1)
+    - curl  http://localhost:8001 
     # Arrêter le conteneur
     #- docker stop containergateway
     # Supprimer le conteneur

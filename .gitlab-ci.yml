@@ -1,3 +1,9 @@
+variables:
+  # The domain used for the live deployment
+  KUBE_NAMESPACE_PROD: prod
+  IP_PROD: 63.33.91.237  # Remplacer par l'IP de votre VM
+  NODEPORT_PROD: 30000   # Corrected NodePort range (30000-32767)
+
 image:
   name: "python:3.11-alpine"
   entrypoint: ["/bin/sh", "-c"]
@@ -5,15 +11,13 @@ image:
 stages:
   - test
   - build
-  - run
   - deploy
 
 test:
   stage: test
   image: python:latest
   before_script:
-    # Afficher les informations du démon Docker (optionnel, utile pour le débogage)
-    # - docker login registry.gitlab.com
+    # Update and install required dependencies
     - apt-get update && apt-get install -y python3-pip
   script:
     - pip install fastapi
@@ -22,8 +26,6 @@ test:
     - pip install jinja2
     # - cd gateway/ # Décommentez cette ligne si nécessaire pour naviguer dans le bon dossier
     #- python3 -m pytest
-
-
 build_gateway:
   stage: build
   image: docker:latest
@@ -35,76 +37,24 @@ build_gateway:
     - docker build -t assma123/k-api-gateway:latest -f gateway/Dockerfile gateway
     # List the container images
     - docker image ls
-    # Pousse l'image sur DockerHub
+    # Push the image to DockerHub
     - docker push assma123/k-api-gateway:latest
     - docker images  # Vérification que l'image est bien présente
 
-
-build_orders:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    # Build the container image for orders
-    - docker build -t assma123/k-orders:latest -f orders/Dockerfile orders
-    # List the container images
-    - docker image ls
-    # Push the image to DockerHub
-    - docker push assma123/k-orders:latest
-    # Verification
-    - docker images
-
-build_users:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    # Build the container image for users
-    - docker build -t assma123/k-users:latest -f users/Dockerfile users
-    # List the container images
-    - docker image ls
-    # Push the image to DockerHub
-    - docker push assma123/k-users:latest
-    # Verification
-    - docker images
-
-run_gateway:
-  stage: run
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-   # Arrêter et supprimer le conteneur s'il existe déjà
-    - docker stop containergateway || true
-    - docker rm containergateway || true
-    # Installer curl si nécessaire
-    - apk add --no-cache curl
-    # Exécuter le conteneur FastAPI en arrière-plan et le nommer 'containergateway'
-    - docker run -d --name containergateway -p 8001:8000 assma123/k-api-gateway:latest
-    # Augmenter le temps d'attente pour s'assurer que l'application démarre complètement
-    - sleep 20
-    # Vérifier les logs du conteneur pour diagnostiquer les problèmes
-    - docker logs containergateway
-    # Tester la connexion à l'application FastAPI
-    - docker ps
-    #- curl  http://localhost:8000
-    # Arrêter le conteneur
-    #- docker stop containergateway
-    # Supprimer le conteneur
-    #- docker rm containergateway
-
-deploy_gateway:
+deploy_prod:
   stage: deploy
-  image: devth/helm:latest # Image contenant Helm
+  image: devth/helm:latest  # Image contenant Helm
+  environment:
+    name: prod
+    url: http://$IP_PROD:$NODEPORT_PROD
+  variables:
+    NAMESPACE: $KUBE_NAMESPACE_PROD
   script:
     - kubectl config get-contexts
     - kubectl config use-context gitlab-group7610338/gitlab_exam:k3s-cluster
-    # Installer ou mettre à jour l'application avec Helm
-    - helm upgrade --install gateway ./test-gateway/ -n prod --create-namespace
-    # Vérifier le statut du déploiement Helm
-    - helm list -n prod
-    - kubectl get all -n prod 
+    # Deploy or update the application with Helm
+    - helm upgrade --install gateway ./test-gateway/ --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
+    # Check the status of the Helm deployment
+    - helm list -n $NAMESPACE
+    - kubectl get all -n $NAMESPACE
+

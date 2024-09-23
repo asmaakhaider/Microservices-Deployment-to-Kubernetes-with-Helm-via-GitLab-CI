@@ -66,22 +66,14 @@ run_gateway:
 
 deploy_gateway:
   stage: deploy
-  image: docker:latest # Image contenant Helm
+  image: devth/helm:latest # Image contenant Helm
   services:
     - docker:dind
   script:
-     # Installer Helm manuellement
-    - apk add --no-cache curl
-    - curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sh
-    - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-    # Créer le répertoire .kube si nécessaire
-    - mkdir -p /root/.kube
-    # Charger le fichier de configuration Kubernetes si nécessaire
-    - echo "$KUBE_CONFIG" | base64 -d > /root/.kube/config
-    # Changer de contexte si plusieurs sont définis
-     # Vérifie que kubectl peut accéder au cluster
-    - kubectl config current-context
-    - kubectl cluster-info
+    - rm -Rf .kube
+    - mkdir .kube
+    - ls
+    - cat $KUBE_CONFIG > .kube/config
     # Installer ou mettre à jour l'application avec Helm
     - helm upgrade --install gateway ./test-gateway/ -n prod --create-namespace
     # Vérifier le statut du déploiement Helm

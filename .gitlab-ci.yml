@@ -1,8 +1,16 @@
 variables:
   # The domain used for the live deployment
   KUBE_NAMESPACE_PROD: prod
+  KUBE_NAMESPACE_DEV: dev
+  KUBE_NAMESPACE_STAGING: staging
+  KUBE_NAMESPACE_QA: QA
   IP_PROD: 63.33.91.237  # Remplacer par l'IP de votre VM
-  NODEPORT_PROD: 30000   # Corrected NodePort range (30000-32767)
+  IP_STAGING: 63.33.91.237 #Remplacer par votre IP de la VM
+  IP_QA: 63.33.91.237  #Remplacer par votre IP de la VM
+  NODEPORT_DEV: 30002
+  NODEPORT_PROD: 30000  # Corrected NodePort range (30000-32767)
+  NODEPORT_STAGING: 30001
+  NODEPORT_QA: 30003
 
 image:
   name: "python:3.11-alpine"
@@ -13,6 +21,9 @@ stages:
   - build
   - run
   - deploy_prod
+  - deploy_dev
+  - deploy_staging
+  - deploy_qa
 
 test:
   stage: test
@@ -99,8 +110,6 @@ run_gateway:
     # Supprimer le conteneur
     #- docker rm containergateway
 
-
-
 deploy_prod:
   stage: deploy_prod
   image: devth/helm:latest  # Image contenant Helm
@@ -115,6 +124,8 @@ deploy_prod:
     # Deploy or update the application with Helm
     - helm upgrade --install gateway ./test-gateway/ --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
     - helm upgrade --install users ./test-users --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
+    - helm upgrade --install orders ./test-orders --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
+
     # Check the status of the Helm deployment
     - helm list -n $NAMESPACE
     - kubectl get all -n $NAMESPACE
@@ -123,4 +134,85 @@ deploy_prod:
     - main  # Le déploiement ne s'exécute que sur la branche 'main'
   when: manual  # Nécessite une action manuelle pour déclencher le déploiement
   allow_failure: false  # Assure que le job ne soit pas ignoré en cas d'échec
+
+deploy_dev:
+  stage: deploy_dev
+  image: devth/helm:latest  # Image contenant Helm
+  environment:
+    name: dev
+    url: http://$IP_DEV:$NODEPORT_DEV
+  variables:
+    NAMESPACE: $KUBE_NAMESPACE_DEV
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context gitlab-group7610338/gitlab_exam:k3s-cluster
+    # Deploy or update the application with Helm
+    - helm upgrade --install gateway ./test-gateway/ --namespace $NAMESPACE --set service.nodeport="$NODEPORT_DEV"
+    - helm upgrade --install users ./test-users --namespace $NAMESPACE --set service.nodeport="$NODEPORT_DEV"
+    - helm upgrade --install orders ./test-orders --namespace $NAMESPACE --set service.nodeport="$NODEPORT_DEV"
+
+    # Check the status of the Helm deployment
+    - helm list -n $NAMESPACE
+    - kubectl get all -n $NAMESPACE
+    - kubectl get pods -n $NAMESPACE
+  only:
+    - main  # Le déploiement ne s'exécute que sur la branche 'main'
+  when: manual  # Nécessite une action manuelle pour déclencher le déploiement
+  allow_failure: false  # Assure que le job ne soit pas ignoré en cas d'échec
+  
+
+
+deploy_staging:
+  stage: deploy_staging
+  image: devth/helm:latest  # Image contenant Helm
+  environment:
+    name: staging
+    url: http://$IP_STAGING:$NODEPORT_STAGING
+  variables:
+    NAMESPACE: $KUBE_NAMESPACE_STAGING
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context gitlab-group7610338/gitlab_exam:k3s-cluster
+    # Deploy or update the application with Helm
+    - helm upgrade --install gateway ./test-gateway/ --namespace $NAMESPACE --set service.nodeport="$NODEPORT_STAGING"
+    - helm upgrade --install users ./test-users --namespace $NAMESPACE --set service.nodeport="$NODEPORT_STAGING"
+    - helm upgrade --install orders ./test-orders --namespace $NAMESPACE --set service.nodeport="$NODEPORT_STAGING"
+
+    # Check the status of the Helm deployment
+    - helm list -n $NAMESPACE
+    - kubectl get all -n $NAMESPACE
+    - kubectl get pods -n $NAMESPACE
+  only:
+    - main  # Le déploiement ne s'exécute que sur la branche 'main'
+  when: manual  # Nécessite une action manuelle pour déclencher le déploiement
+  allow_failure: false  # Assure que le job ne soit pas ignoré en cas d'échec
+  
+
+
+deploy_qa:
+  stage: deploy_qa
+  image: devth/helm:latest  # Image contenant Helm
+  environment:
+    name: qa
+    url: http://$IP_QA:$NODEPORT_QA
+  variables:
+    NAMESPACE: $KUBE_NAMESPACE_QA
+  script:
+    - kubectl config get-contexts
+    - kubectl config use-context gitlab-group7610338/gitlab_exam:k3s-cluster
+    # Deploy or update the application with Helm
+    - helm upgrade --install gateway ./test-gateway/ --namespace $NAMESPACE --set service.nodeport="$NODEPORT_QA"
+    - helm upgrade --install users ./test-users --namespace $NAMESPACE --set service.nodeport="$NODEPORT_QA"
+    - helm upgrade --install orders ./test-orders --namespace $NAMESPACE --set service.nodeport="$NODEPORT_QA"
+
+    # Check the status of the Helm deployment
+    - helm list -n $NAMESPACE
+    - kubectl get all -n $NAMESPACE
+    - kubectl get pods -n $NAMESPACE
+  only:
+    - main  # Le déploiement ne s'exécute que sur la branche 'main'
+  when: manual  # Nécessite une action manuelle pour déclencher le déploiement
+  allow_failure: false  # Assure que le job ne soit pas ignoré en cas d'échec
+  
+
 

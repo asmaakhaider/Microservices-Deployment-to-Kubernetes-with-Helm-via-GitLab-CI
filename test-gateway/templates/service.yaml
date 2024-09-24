@@ -5,10 +5,10 @@ metadata:
   name: gateway-service
 spec:
   type: NodePort
+  externalTrafficPolicy: Local  # Changez de Cluster à Local
   ports:
     - port: 8001          # Port exposé par le service
       targetPort: 8001    # Port sur lequel l'application écoute dans le conteneur
       protocol: TCP
-      nodePort: 30001
   selector:
     app: gateway

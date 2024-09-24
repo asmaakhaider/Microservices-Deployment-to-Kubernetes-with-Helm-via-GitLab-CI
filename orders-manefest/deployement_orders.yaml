@@ -1,0 +1,29 @@
+# deployment-orders.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: orders
+  template:
+    metadata:
+      labels:
+        app: orders
+    spec:
+      containers:
+        - name: orders
+          image: assma123/k-orders:latest
+          command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: orders-volume
+              mountPath: /app
+      volumes:
+        - name: orders-volume
+          hostPath:
+            path: /home/ubuntu/gitlab_exam/orders
+            type: Directory

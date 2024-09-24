@@ -7,7 +7,7 @@ variables:
   IP_PROD: 63.33.91.237  # Remplacer par l'IP de votre VM
   IP_STAGING: 63.33.91.237 #Remplacer par votre IP de la VM
   IP_QA: 63.33.91.237  #Remplacer par votre IP de la VM
-  NODEPORT_DEV: 30002
+  NODEPORT_DEV: 30004
   NODEPORT_PROD: 30000  # Corrected NodePort range (30000-32767)
   NODEPORT_STAGING: 30001
   NODEPORT_QA: 30003

@@ -11,6 +11,7 @@ image:
 stages:
   - test
   - build
+  - run
   - deploy_prod
 
 test:
@@ -41,6 +42,65 @@ build_gateway:
     - docker push assma123/k-api-gateway:latest
     - docker images  # Vérification que l'image est bien présente
 
+build_orders:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    # Build the container image for orders
+    - docker build -t assma123/k-orders:latest -f orders/Dockerfile orders
+    # List the container images
+    - docker image ls
+    # Push the image to DockerHub
+    - docker push assma123/k-orders:latest
+    # Verification
+    - docker images
+
+build_users:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    # Build the container image for users
+    - docker build -t assma123/k-users:latest -f users/Dockerfile users
+    # List the container images
+    - docker image ls
+    # Push the image to DockerHub
+    - docker push assma123/k-users:latest
+    # Verification
+    - docker images
+
+run_gateway:
+  stage: run
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+   # Arrêter et supprimer le conteneur s'il existe déjà
+    - docker stop containergateway || true
+    - docker rm containergateway || true
+    # Installer curl si nécessaire
+    - apk add --no-cache curl
+    # Exécuter le conteneur FastAPI en arrière-plan et le nommer 'containergateway'
+    - docker run -d --name containergateway -p 8001:8000 assma123/k-api-gateway:latest
+    # Augmenter le temps d'attente pour s'assurer que l'application démarre complètement
+    - sleep 20
+    # Vérifier les logs du conteneur pour diagnostiquer les problèmes
+    - docker logs containergateway
+    # Tester la connexion à l'application FastAPI
+    - docker ps
+    #- curl  http://localhost:8000
+    # Arrêter le conteneur
+    #- docker stop containergateway
+    # Supprimer le conteneur
+    #- docker rm containergateway
+
+
+
 deploy_prod:
   stage: deploy_prod
   image: devth/helm:latest  # Image contenant Helm
@@ -54,6 +114,7 @@ deploy_prod:
     - kubectl config use-context gitlab-group7610338/gitlab_exam:k3s-cluster
     # Deploy or update the application with Helm
     - helm upgrade --install gateway ./test-gateway/ --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
+    - helm upgrade --install users ./test-users --namespace $NAMESPACE --set service.nodeport="$NODEPORT_PROD"
     # Check the status of the Helm deployment
     - helm list -n $NAMESPACE
     - kubectl get all -n $NAMESPACE

@@ -8,9 +8,9 @@ variables:
   IP_STAGING: 63.33.91.237 #Remplacer par votre IP de la VM
   IP_QA: 63.33.91.237  #Remplacer par votre IP de la VM
   NODEPORT_DEV: 30004
-  NODEPORT_PROD: 30000  # Corrected NodePort range (30000-32767)
-  NODEPORT_STAGING: 30001
-  NODEPORT_QA: 30003
+  NODEPORT_PROD: 30005 # Corrected NodePort range (30000-32767)
+  NODEPORT_STAGING: 30007
+  NODEPORT_QA: 30009
 
 image:
   name: "python:3.11-alpine"
